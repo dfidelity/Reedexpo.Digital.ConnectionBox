@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+  <config>
+   <add key="maxHttpRequestsPerSource" value="16" />
+  </config>
+  <packageSources>
+    <add key="proget-default" value="{PROGET_URL}" />
+  </packageSources>
+</configuration>

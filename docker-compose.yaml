@@ -1,0 +1,21 @@
+version: '3'
+services:
+  db:
+    image: postgres:12.4-alpine
+    command: postgres -c 'max_connections=300'
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=connectionboxdbapplicationuser
+      - POSTGRES_PASSWORD=passw0rd
+      - POSTGRES_DB=Connections
+  goaws:
+    image: pafortin/goaws
+    ports:
+      - 4100:4100
+  localstack:
+    image: localstack/localstack
+    ports:
+      - "4566-4599:4566-4599"
+    environment:
+      - SERVICES=ses,s3

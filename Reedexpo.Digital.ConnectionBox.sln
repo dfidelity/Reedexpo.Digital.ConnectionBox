@@ -1,0 +1,47 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27130.2020
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reedexpo.Digital.ConnectionBox", "src\Reedexpo.Digital.ConnectionBox\Reedexpo.Digital.ConnectionBox.csproj", "{5BFF9BC9-A8C2-49DE-8FDC-CF825292D40A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{97D31FEA-FC7D-4908-A152-F0C6FFCEAFA3}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{ED77EE65-5E2F-43A9-AFF4-93C975FD3DF4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reedexpo.Digital.ConnectionBox.Unit.Test", "test\Reedexpo.Digital.ConnectionBox.Unit.Test\Reedexpo.Digital.ConnectionBox.Unit.Test.csproj", "{4725813B-EECC-4B1D-97B5-D2B65ACC3A92}"
+EndProject
+Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "Reedexpo.Digital.ConnectionBox.Integration.Test", "test\Reedexpo.Digital.ConnectionBox.Integration.Test\Reedexpo.Digital.ConnectionBox.Integration.Test.njsproj", "{DAB659B8-9A95-469D-BEAC-D9FEF083AE73}"
+EndProject
+Project("{F5034706-568F-408A-B7B3-4D38C6DB8A32}") = "Reedexpo.Digital.ConnectionBox.Load.Test", "test\Reedexpo.Digital.ConnectionBox.Load.Test\Reedexpo.Digital.ConnectionBox.Load.Test.pssproj", "{6CAFC0C6-A428-4D30-A9F9-700E829FEA51}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5BFF9BC9-A8C2-49DE-8FDC-CF825292D40A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5BFF9BC9-A8C2-49DE-8FDC-CF825292D40A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5BFF9BC9-A8C2-49DE-8FDC-CF825292D40A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5BFF9BC9-A8C2-49DE-8FDC-CF825292D40A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4725813B-EECC-4B1D-97B5-D2B65ACC3A92}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4725813B-EECC-4B1D-97B5-D2B65ACC3A92}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4725813B-EECC-4B1D-97B5-D2B65ACC3A92}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4725813B-EECC-4B1D-97B5-D2B65ACC3A92}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6CAFC0C6-A428-4D30-A9F9-700E829FEA51}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6CAFC0C6-A428-4D30-A9F9-700E829FEA51}.Debug|Any CPU.Build.0 = Debug|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{5BFF9BC9-A8C2-49DE-8FDC-CF825292D40A} = {97D31FEA-FC7D-4908-A152-F0C6FFCEAFA3}
+		{4725813B-EECC-4B1D-97B5-D2B65ACC3A92} = {ED77EE65-5E2F-43A9-AFF4-93C975FD3DF4}
+		{DAB659B8-9A95-469D-BEAC-D9FEF083AE73} = {ED77EE65-5E2F-43A9-AFF4-93C975FD3DF4}
+		{6CAFC0C6-A428-4D30-A9F9-700E829FEA51} = {ED77EE65-5E2F-43A9-AFF4-93C975FD3DF4}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {20559CBB-272F-4007-953D-AF62AB6D9FBE}
+	EndGlobalSection
+EndGlobal
