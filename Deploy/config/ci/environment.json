@@ -1,0 +1,25 @@
+{
+  "FeatureToggles": "",
+  "jwtSecretKey": "b33989101aec40d2e0f7bbc28899671e1bfcfd8d68fb56c5502426c062a839ec109fff8e0aa175a487b7a2ac470129ce20aa037515a09021be1c2e68211ad75b47e67c509cb2150bd9d6a28c05afba2f5ee2160a8af59cfe1d786ea09901a288569437eaa13040f0e2ec960657300e40bd3c0f63c2ca793340f8275992000bd196cad51a881cadf9bd97b13550c4d092df6aad0a89c30704d14407976df27726859e74aa5ae1632c0180edd75f4647e4ce022e5b5195cf03c911a62a1f5c1c941c700e2c57e73f9fd5dedecd97d4646b69090fedf24a87005a1baa6755ece4e248e34b3c71ba2128df3f7d8045dd656e4d554d7eef2d6422a5cd9b6df33a99c8",
+  "jwtIssuer": "reedexhibitions-ci",
+  "postgresDbUrl":"",
+  "dbName": "",
+  "dbMasterUsername": "",
+  "senderEmail": "",
+  "playStoreUrl": "",
+  "appStoreUrl": "",
+  "externalHostUrl": "https://reedexpopreprod-dev.apigee.net/api",
+  "showActiveDays": 30,
+  "environmentName": "dev",
+  "regBoxEnvironmentName": "dev",
+  "showExhibitorHubUrl": true,
+  "featureToggle": {
+    "platformIntegration": false
+  },
+  "AuthorityUrl": "https://policebox-dev.css.rxweb-dev.com/secure",
+  "exBoxServiceUrl": "https://exbox-dev.css.rxweb-dev.com",
+  "UserServiceUrl": "https://checkbox-dev.css.rxweb-dev.com",
+  "emitEventsforDataLake": false,
+  "ServiceName": "connectionbox",
+  "EnableEventBus": true
+}
