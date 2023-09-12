@@ -1,0 +1,963 @@
+Description: Cloud formation template for ConnectionBox resources
+
+Parameters:
+    ForceCloudFormation:
+        Description: Change the default value in build.cake/Bamboo to manually create changeset to run cloudformation template. (e.g. Custom Resource level changes.)
+        Type: String
+        Default: "0"
+
+    BillingEnvironmentName:
+        Type: String
+        MinLength: "2"
+        AllowedPattern: "[a-zA-Z0-9]*"
+
+    SnapshotIdentifier:
+        Description: Snapshot identifier for Aurora DB instance coming from bamboo
+        Type: String
+
+    DeployAurora:
+        Description: Used for disaster recovery. Delivery teams MUST NOT change this parameter.
+        Type: String
+        Default: 'no'
+        AllowedValues:
+            - 'no'
+            - 'yes'
+            - 'Import'
+
+    DeployColleqtQrLambda:
+        Description: Condition to deploy colleqt qr lambda
+        Type: String
+        Default: 'no'
+        AllowedValues:
+            - 'no'
+            - 'yes'
+
+    BambooBuildNumber:
+        Description: The build number of the bamboo pipeline
+        Type: String
+
+    ApigeeApiKey:
+        Description: The api key to access apigee endpoints
+        Type: String
+
+    QueryLogging:
+        Description: Controls logging of queries
+        Type: String
+        Default: none
+        AllowedValues:
+            - none # Nothing
+            - ddl # CREATE, ALTER etc.
+            - mod # INSERT, UDPATE, DELETE etc.
+            - all # Everything
+
+    QueryLogMinDuration:
+        Description: When logging is enabled, min duration of query in milliseconds to log.
+        Type: Number
+        MinValue: -1
+        MaxValue: 2147483647
+        Default: 1000
+
+    QueryLogMinErrorStatement:
+        Description: When logging is enabled, controls which SQL statements that cause an error condition are recorded in the server log
+        Type: String
+        Default: ERROR
+        AllowedValues:
+            - INFO
+            - NOTICE
+            - WARNING
+            - ERROR
+            - LOG
+            - FATAL
+            - PANIC
+
+    AuroraLogRetention:
+        Description: When logging is enabled, sets retention period in minutes (all logs)
+        Type: Number
+        MinValue: 1440
+        MaxValue: 10080
+        Default: 1440
+
+
+Mappings:
+    General:
+        Constants:
+            ApplicationName: connectionbox
+
+    Accounts:
+        "915203318988":
+            Description: The rxplatformrefresh account (dev)
+            VpcId: vpc-16cffc73
+            DbPublicSubnetIds:
+                - subnet-38391c61
+                - subnet-9ab357fe
+            DbPrivateSubnetIds:
+                - subnet-06391c5f
+                - subnet-98b357fc
+            AuroraPrivateSubnetIds:
+                - subnet-9d33cac7
+                - subnet-72fa4414
+            ApplicationPrivateSubnetIds:
+                - subnet-06391c5f
+                - subnet-98b357fc
+            DbBackupRetentionPeriod: "3"
+            DbMultiAZ: false
+            DbEnhancedMonitoringInverval: 0
+            NatGatewayIps:
+                - 52.49.163.40/32
+                - 52.49.163.40/32
+            DbInstanceClass: db.t3.medium
+            DBInstanceManagedSecurityGroup: sg-06f69df8f2e3c2b84
+            RecipientDomains:
+                - "*@*"
+            ElasticBambooInstanceRoleArn: arn:aws:iam::915203318988:role/ElasticBambooInstanceProfile-ElasticBambooRole-AFSD3M8F5JAI
+            JumpBoxSecurityGroup: sg-11c01676
+            RDSecretRotationLambda: arn:aws:lambda:eu-west-1:915203318988:function:rxgt-ps-cross-account-rds-rotate-pgsql-vpc-16cffc73
+            RDSSecretRotationSecurityGroup: sg-0c50568bb838e78f3
+            SSMKeyId: arn:aws:kms:eu-west-1:915203318988:key/33b33286-ad11-4d63-bcbc-28f3c96cc895
+
+        "324811521787":
+            Description: The rxpreprod account (preprod)
+            VpcId: vpc-17a5c073
+            DbPrivateSubnetIds:
+                - subnet-cc3244ba
+                - subnet-2495ed40
+            AuroraPrivateSubnetIds:
+                - subnet-00000000
+                - subnet-00000000
+            ApplicationPrivateSubnetIds:
+                - subnet-ca3244bc
+                - subnet-5b95ed3f
+            DbBackupRetentionPeriod: "30"
+            DbMultiAZ: true
+            DbEnhancedMonitoringInverval: 0
+            NatGatewayIps:
+                - 52.48.25.110/32
+                - 52.211.117.155/32
+            DbInstanceClass: db.t3.medium
+            DBInstanceManagedSecurityGroup: sg-051f7cf411fa22216
+            RecipientDomains:
+                - "*@*"
+            ElasticBambooInstanceRoleArn: ""
+            JumpBoxSecurityGroup: ""
+            RDSecretRotationLambda: arn:aws:lambda:eu-west-1:324811521787:function:rxgt-ps-cross-account-rds-rotate-pgsql-vpc-17a5c073
+            RDSSecretRotationSecurityGroup: sg-08bcbe3d06829a1d7
+            SSMKeyId: arn:aws:kms:eu-west-1:324811521787:key/d6462d39-7217-4132-a389-c5abbb7eed0c
+
+        "612155760304":
+            Description: The rxprod account (prod)
+            VpcId: vpc-893943ed
+            DbPrivateSubnetIds:
+                - subnet-09a8e37f
+                - subnet-6c732008
+            AuroraPrivateSubnetIds:
+                - subnet-00000000
+                - subnet-00000000
+            ApplicationPrivateSubnetIds:
+                - subnet-60732004
+                - subnet-0ba8e37d
+            DbBackupRetentionPeriod: "30"
+            DbEnhancedMonitoringInverval: 5
+            DbMultiAZ: true
+            NatGatewayIps:
+                - 52.49.25.42/32
+                - 52.209.163.13/32
+            DbInstanceClass: db.r5.2xlarge
+            DBInstanceManagedSecurityGroup: sg-0c2899050718ef050
+            RecipientDomains:
+                - "*@*"
+            ElasticBambooInstanceRoleArn: ""
+            JumpBoxSecurityGroup: ""
+            RDSecretRotationLambda: arn:aws:lambda:eu-west-1:612155760304:function:rxgt-ps-cross-account-rds-rotate-pgsql-vpc-893943ed
+            RDSSecretRotationSecurityGroup: sg-0f29999915819aae2
+            SSMKeyId: arn:aws:kms:eu-west-1:612155760304:key/0606c76d-c5e1-4728-8237-158322b98976
+
+        "950034897475":
+            Description: The rxdrx account (drx)
+            VpcId: vpc-09c352f3c80e1bed0
+            DbPrivateSubnetIds:
+                - subnet-0bd45cd7485eb79d7
+                - subnet-0dadac8f13124ec33
+            AuroraPrivateSubnetIds:
+                - subnet-0bd45cd7485eb79d7
+                - subnet-0dadac8f13124ec33
+            ApplicationPrivateSubnetIds:
+                - subnet-0bd45cd7485eb79d7
+                - subnet-0dadac8f13124ec33
+            DbBackupRetentionPeriod: "30"
+            DbEnhancedMonitoringInverval: 5
+            DbMultiAZ: true
+            NatGatewayIps:
+                - 3.10.177.57/32
+                - 3.10.177.57/32
+            DbInstanceClass: db.t3.medium
+            DBInstanceManagedSecurityGroup: sg-0d3ee169812c800e2
+            RecipientDomains:
+                - "*@*"
+            ElasticBambooInstanceRoleArn: ""
+            JumpBoxSecurityGroup: ""
+            RDSecretRotationLambda: arn:aws:lambda:eu-west-2:950034897475:function:rxgt-ps-cross-account-rds-rotate-pgsql-vpc-09c352f3c80e1bed0
+            RDSSecretRotationSecurityGroup: sg-056723abfed1092a3
+            SSMKeyId: arn:aws:kms:eu-west-2:950034897475:key/2970651a-142b-4eca-97e7-59ec0d077494
+
+    S3UploadedFilesBucketArn:
+        dev:
+            arn: "arn:aws:s3:::connectionbox-dev-connectionboxuploadedfiless3buc-vopzoyw7s18l"
+        show:
+            arn: "arn:aws:s3:::connectionbox-show-connectionboxuploadedfiless3bu-pyp10l6t35vr"
+        preprod:
+            arn: "arn:aws:s3:::connectionbox-preprod-connectionboxuploadedfiless-1qlt7r6ocoynm"
+        prod:
+            arn: "arn:aws:s3:::connectionbox-prod-connectionboxuploadedfiless3bu-1vq4xanaw3mm2"
+Conditions:
+    IsProduction: !Equals
+        - !Ref "AWS::AccountId"
+        - "612155760304"
+
+    IsDrx: !Equals
+        - !Ref "AWS::AccountId"
+        - "950034897475"
+
+    EnableRDSEnhancedMonitoring: !Condition IsProduction
+
+    IsRxPlatformRefresh: !Equals
+        - !Ref "AWS::AccountId"
+        - "915203318988"
+
+    IncludePackagesBucket: !Not
+        - !Equals
+            - !Ref BillingEnvironmentName
+            - "dev"
+
+    DeployQrCodeGenerationLambda: !And
+        - !Equals
+            - !Ref DeployColleqtQrLambda
+            - "yes"
+        - !Not
+            - !Equals
+                - !Ref BillingEnvironmentName
+                - "perf"
+
+    DeployAuroraReplica: !Or
+        - !Equals
+            - !FindInMap
+                - Accounts
+                - !Ref AWS::AccountId
+                - DbMultiAZ
+            - true
+        - !Or
+            - !Equals
+                - !Ref BillingEnvironmentName
+                - "dev"
+            - !Equals
+                - !Ref BillingEnvironmentName
+                - "perf"
+
+    # Additional subnet group for show and perf due to IP limitation in original subnets
+    DeployAuroraSubnetGroup: !And
+        - !Condition IsRxPlatformRefresh
+        - !Not
+            - !Equals
+                - !Ref BillingEnvironmentName
+                - "dev"
+
+    DeployDbSubnetGroup: !Not
+        - !Condition DeployAuroraSubnetGroup
+
+    IsNotPerf: !Not
+        - !Equals
+            - !Ref BillingEnvironmentName
+            - "perf"
+
+Resources:
+    #region Buckets
+    SESEmailConfigurationSet:
+        Type: AWS::SES::ConfigurationSet
+        Properties:
+            Name: !Sub
+                - "rxgt-atlas-connectionbox-email-configurationset-${env}"
+                - env: !Ref BillingEnvironmentName
+
+    SESNotificationTopic:
+        Type: AWS::SNS::Topic
+        Properties:
+            DisplayName: ConnectionBox-EmailEventsNotification
+            TopicName: !Sub
+                - "rxgt-atlas-connectionbox-email-notifications-${env}"
+                - env: !Ref BillingEnvironmentName
+
+    SESNotificationQueue:
+        Type: AWS::SQS::Queue
+        Properties:
+            VisibilityTimeout: 500
+            QueueName: !Sub
+                - "rxgt-atlas-connectionbox-${env}-email-event-notification-received"
+                - env: !Ref BillingEnvironmentName
+
+    SnsSubscription:
+        Type: AWS::SNS::Subscription
+        Properties:
+            Protocol: sqs
+            Endpoint: !GetAtt SESNotificationQueue.Arn
+            Region: !Ref AWS::Region
+            TopicArn: !Ref SESNotificationTopic
+
+    SESNotificationQueuePolicy:
+        Type: AWS::SQS::QueuePolicy
+        Properties:
+            Queues:
+                - !Ref SESNotificationQueue
+            PolicyDocument:
+                Id: "PublishSNStoSQS"
+                Statement:
+                    - Effect: "Allow"
+                      Principal: "*"
+                      Action:
+                          - "sqs:SendMessage"
+                          - "sqs:ReceiveMessage"
+                      Resource: "*"
+                      Condition:
+                          ArnEquals:
+                              aws:SourceArn: !Ref SESNotificationTopic
+
+    ConnectionBoxUploadedFilesS3Bucket:
+        Type: AWS::S3::Bucket
+        Properties:
+            CorsConfiguration:
+                CorsRules:
+                    - AllowedOrigins:
+                          - "*"
+                      AllowedMethods:
+                          - HEAD
+            VersioningConfiguration:
+                Status: Enabled
+
+    ConnectionBoxUploadedFilesBucketPolicy:
+        Type: AWS::S3::BucketPolicy
+        Properties:
+            Bucket: !Ref "ConnectionBoxUploadedFilesS3Bucket"
+            PolicyDocument:
+                Statement:
+                    - Action: s3:*
+                      Effect: Deny
+                      Principal: "*"
+                      Resource: !Join
+                          - ""
+                          - - "arn:aws:s3:::"
+                            - !Ref "ConnectionBoxUploadedFilesS3Bucket"
+                            - /*
+                      Condition:
+                          Bool:
+                              aws:SecureTransport: "false"
+                          NumericLessThan:
+                              s3:TlsVersion: 1.2
+
+    ConnectionBoxPackagesS3Bucket:
+        Condition: IncludePackagesBucket
+        Type: AWS::S3::Bucket
+        Properties:
+            CorsConfiguration:
+                CorsRules:
+                    - AllowedOrigins:
+                          - "*"
+                      AllowedMethods:
+                          - HEAD
+            VersioningConfiguration:
+                Status: Enabled
+
+    ConnectionBoxPackagesBucketPolicy:
+        Condition: IncludePackagesBucket
+        Type: AWS::S3::BucketPolicy
+        Properties:
+            Bucket: !Ref "ConnectionBoxPackagesS3Bucket"
+            PolicyDocument:
+                Statement:
+                    - Action: s3:*
+                      Effect: Deny
+                      Principal: "*"
+                      Resource: !Join
+                          - ""
+                          - - "arn:aws:s3:::"
+                            - !Ref "ConnectionBoxPackagesS3Bucket"
+                            - /*
+                      Condition:
+                          Bool:
+                              aws:SecureTransport: "false"
+
+    SNSEventDestinationLambdaRole:
+        Type: AWS::IAM::Role
+        Properties:
+            RoleName: !Sub "SNSEventDestinationLambdaRole-${BillingEnvironmentName}"
+            ManagedPolicyArns:
+                - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+            AssumeRolePolicyDocument:
+                Version: 2012-10-17
+                Statement:
+                    - Action:
+                          - "sts:AssumeRole"
+                      Effect: Allow
+                      Principal:
+                          Service:
+                              - lambda.amazonaws.com
+            Path: /
+            Policies:
+                - PolicyName: SNSEventDestinationLambdaRoleAccessPolicy
+                  PolicyDocument:
+                      Version: 2012-10-17
+                      Statement:
+                          - Effect: Allow
+                            Action:
+                                - "ses:*"
+                            Resource:
+                                - "*"
+    SNSEventDestionationLambda:
+        Type: "AWS::Lambda::Function"
+        DependsOn:
+            - SNSEventDestinationLambdaRole
+        Properties:
+            Description: "Lambda to create SNS Event Destination - 1"
+            FunctionName: !Sub "sns_eventdestination_creation-${BillingEnvironmentName}"
+            Handler: sns_eventdestination_creation.handler
+            Role: !GetAtt
+                - SNSEventDestinationLambdaRole
+                - Arn
+            Code:
+                S3Bucket: !Sub >-
+                    ratboxcodebucket-${BillingEnvironmentName}-${AWS::Region}-${AWS::AccountId}
+                S3Key: custom-resource-handlers/sns_eventdestination_creation.zip
+            Runtime: python3.9
+    CustomSNSEventDestinationResource:
+        Type: "Custom::SNSEventDestinationResource"
+        Properties:
+            Description: "Runs to create SNS Event Destination - 1"
+            PhysicalResourceId: CustomSNSEventDestinationResource
+            ServiceToken: !GetAtt
+                - SNSEventDestionationLambda
+                - Arn
+            env: !Ref BillingEnvironmentName
+            snsTopicArn: !Ref SESNotificationTopic
+    ColleqtQrLambdaImageEcrRepository:
+        Condition: IsNotPerf
+        Type: AWS::ECR::Repository
+        Properties:
+            ImageTagMutability: IMMUTABLE
+            RepositoryName: !Sub colleqt-qrcode-generator-${BillingEnvironmentName}
+            RepositoryPolicyText: {
+                "Version": "2008-10-17",
+                "Statement": [
+                    {
+                        "Sid": "bamboo-permission",
+                        "Effect": "Allow",
+                        "Principal": "*",
+                        "Action": [
+                            "ecr:BatchCheckLayerAvailability",
+                            "ecr:BatchGetImage",
+                            "ecr:CompleteLayerUpload",
+                            "ecr:GetDownloadUrlForLayer",
+                            "ecr:InitiateLayerUpload",
+                            "ecr:PutImage",
+                            "ecr:UploadLayerPart"
+                        ]
+                    }
+                ]
+            }
+            LifecyclePolicy:
+                LifecyclePolicyText: '{"rules":[{"rulePriority":1,"action":{"type":"expire"},"description":"Keep only 5 latest images","selection":{"tagStatus":"any","countType":"imageCountMoreThan","countNumber":5}}]}'
+    
+    ColleqtQRCodeGenerationLambdaRole:
+        Condition: DeployQrCodeGenerationLambda
+        Type: AWS::IAM::Role
+        Properties:
+            RoleName: !Sub "ColleqtQRCodeGenerationLambda-${BillingEnvironmentName}"
+            ManagedPolicyArns:
+                - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+            AssumeRolePolicyDocument:
+                Version: 2012-10-17
+                Statement:
+                    - Action:
+                          - "sts:AssumeRole"
+                      Effect: Allow
+                      Principal:
+                          Service:
+                              - lambda.amazonaws.com
+            Path: /
+            Policies:
+                - PolicyName: ColleqtQRCodeGenerationLambdaRoleAccessPolicy
+                  PolicyDocument:
+                      Version: 2012-10-17
+                      Statement:
+                          - Effect: Allow
+                            Action:
+                                - "s3:*"
+                            Resource:
+                                - !Sub arn:aws:s3:::connectionboxcodebucket-${BillingEnvironmentName}/*
+                                - !Join
+                                    - ""
+                                    - - !FindInMap
+                                          - S3UploadedFilesBucketArn
+                                          - !Ref BillingEnvironmentName
+                                          - arn
+                                      - /*
+                          - Effect: Allow
+                            Action:
+                                - "s3:ListBucket"
+                            Resource: !Join
+                                    - ""
+                                    - - !FindInMap
+                                          - S3UploadedFilesBucketArn
+                                          - !Ref BillingEnvironmentName
+                                          - arn
+                          - Effect: Allow
+                            Action:
+                                - "sns:Subscribe"
+                            Resource:
+                                - !Sub "arn:aws:sns:eu-west-1:${AWS::AccountId}:${BillingEnvironmentName}-connectionbox_exhibitor-created"
+                                - !Sub "arn:aws:sns:eu-west-1:${AWS::AccountId}:${BillingEnvironmentName}-connectionbox_exhibitor-updated"
+    ColleqtQRCodeGenerationLambda:
+        Condition: DeployQrCodeGenerationLambda
+        Type: "AWS::Lambda::Function"
+        DependsOn:
+            - ColleqtQRCodeGenerationLambdaRole
+        Properties:
+            Description: "Lambda to create colleqt QR codes"
+            FunctionName: !Sub "colleqt-qrcode-generator-${BillingEnvironmentName}"
+            Architectures:
+                - x86_64
+            Code:
+                ImageUri: !Sub ${AWS::AccountId}.dkr.ecr.eu-west-1.amazonaws.com/colleqt-qrcode-generator-${BillingEnvironmentName}:${BambooBuildNumber}
+            Environment:
+                Variables:
+                    environment: !Ref BillingEnvironmentName
+                    apiKey: !Ref ApigeeApiKey
+                    LD_PRELOAD: "/var/task/node_modules/canvas/build/Release/libz.so.1"
+                    LD_LIBRARY_PATH: "/var/task/node_modules/canvas/build/Release:/var/lang/lib:/lib64:/usr/lib64:/var/runtime:/var/runtime/lib:/var/task:/var/task/lib:/opt/lib"
+                    FONTCONFIG_PATH: "./fonts"
+            MemorySize: 512
+            PackageType: Image
+            Role: !GetAtt
+                - ColleqtQRCodeGenerationLambdaRole
+                - Arn
+            Timeout: 500
+    ColleqtQRCodeGenerationLambdaSnsSubscription1:
+        Condition: DeployQrCodeGenerationLambda
+        Type: AWS::SNS::Subscription
+        Properties:
+            Protocol: lambda
+            Endpoint: !GetAtt ColleqtQRCodeGenerationLambda.Arn
+            Region: !Ref AWS::Region
+            TopicArn: !Sub "arn:aws:sns:eu-west-1:${AWS::AccountId}:${BillingEnvironmentName}-connectionbox_exhibitor-created"
+
+    ColleqtQRCodeGenerationLambdaSnsSubscription2:
+        Condition: DeployQrCodeGenerationLambda
+        Type: AWS::SNS::Subscription
+        Properties:
+            Protocol: lambda
+            Endpoint: !GetAtt ColleqtQRCodeGenerationLambda.Arn
+            Region: !Ref AWS::Region
+            TopicArn: !Sub "arn:aws:sns:eu-west-1:${AWS::AccountId}:${BillingEnvironmentName}-connectionbox_exhibitor-updated"
+
+    ColleqtQRCodeGenerationLambdaSnsPermission1:
+        Condition: DeployQrCodeGenerationLambda
+        Type: "AWS::Lambda::Permission"
+        DependsOn:
+            - ColleqtQRCodeGenerationLambda
+        Properties:
+            Action: "lambda:InvokeFunction"
+            FunctionName: !GetAtt
+                - ColleqtQRCodeGenerationLambda
+                - Arn
+            Principal: "sns.amazonaws.com"
+            SourceArn: !Sub "arn:aws:sns:eu-west-1:${AWS::AccountId}:${BillingEnvironmentName}-connectionbox_exhibitor-created"
+
+    ColleqtQRCodeGenerationLambdaSnsPermission2:
+        Condition: DeployQrCodeGenerationLambda
+        Type: "AWS::Lambda::Permission"
+        DependsOn:
+            - ColleqtQRCodeGenerationLambda
+        Properties:
+            Action: "lambda:InvokeFunction"
+            FunctionName: !GetAtt
+                - ColleqtQRCodeGenerationLambda
+                - Arn
+            Principal: "sns.amazonaws.com"
+            SourceArn: !Sub "arn:aws:sns:eu-west-1:${AWS::AccountId}:${BillingEnvironmentName}-connectionbox_exhibitor-updated"
+
+
+
+    #endregion
+
+    #region Instance Security
+
+    ConnectionBoxEc2InstanceProfileRole:
+        Type: AWS::IAM::Role
+        Properties:
+            AssumeRolePolicyDocument:
+                Statement:
+                    - Effect: Allow
+                      Principal:
+                          Service:
+                              - ec2.amazonaws.com
+                      Action: sts:AssumeRole
+            Path: /
+            ManagedPolicyArns:
+                - arn:aws:iam::aws:policy/CloudWatchFullAccess
+                - arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM
+                - arn:aws:iam::aws:policy/AWSElasticBeanstalkWebTier
+                - arn:aws:iam::aws:policy/service-role/AWSQuicksightAthenaAccess
+            Policies:
+                - PolicyName: ConnectionBoxUploadedFilesS3BucketAccess
+                  PolicyDocument:
+                      Statement:
+                          - Action:
+                                - s3:ListBucket
+                            Effect: Allow
+                            Resource: !Sub "arn:aws:s3:::${ConnectionBoxUploadedFilesS3Bucket}"
+                          - Action:
+                                - s3:DeleteObject
+                                - s3:GetObject
+                                - s3:PutObject
+                                - s3:PutObjectAcl
+                            Effect: Allow
+                            Resource: !Sub "arn:aws:s3:::${ConnectionBoxUploadedFilesS3Bucket}/*"
+                - !If
+                    - IncludePackagesBucket
+                    - PolicyName: ConnectionBoxPackagesS3BucketAccess
+                      PolicyDocument:
+                          Statement:
+                              - Action:
+                                    - s3:ListBucket
+                                Effect: Allow
+                                Resource: !Sub "arn:aws:s3:::${ConnectionBoxPackagesS3Bucket}"
+                              - Action:
+                                    - s3:DeleteObject
+                                    - s3:GetObject
+                                    - s3:PutObject
+                                    - s3:PutObjectAcl
+                                Effect: Allow
+                                Resource: !Sub "arn:aws:s3:::${ConnectionBoxPackagesS3Bucket}/*"
+                    - !Ref AWS::NoValue
+                - PolicyName: ConnectionBoxSESWriteAccess
+                  PolicyDocument:
+                      Statement:
+                          - Action:
+                                - ses:SendEmail
+                                - ses:SendRawEmail
+                                - ses:GetSendQuota
+                            Effect: Allow
+                            Resource: "*"
+                            Condition:
+                                ForAllValues:StringLike:
+                                    ses:Recipients: !FindInMap
+                                        - Accounts
+                                        - !Ref "AWS::AccountId"
+                                        - RecipientDomains
+                - PolicyName: CreateMeABusAccess
+                  PolicyDocument:
+                      Statement:
+                          - Effect: Allow
+                            Action:
+                                - sqs:ListQueues
+                                - sns:ListTopics
+                                - sns:SetSubscriptionAttributes
+                            Resource: "*"
+                          - Effect: Allow
+                            Action:
+                                - sqs:ChangeMessageVisibility
+                                - sqs:CreateQueue
+                                - sqs:DeleteMessage
+                                - sqs:GetQueueUrl
+                                - sqs:GetQueueAttributes
+                                - sqs:ReceiveMessage
+                                - sqs:SendMessage
+                                - sqs:SetQueueAttributes
+                            Resource: "*"
+                          - Effect: Allow
+                            Action:
+                                - sns:CreateTopic
+                                - sns:Publish
+                                - sns:Subscribe
+                            Resource: "*"
+                - PolicyName: GetDatabaseSecret
+                  PolicyDocument:
+                      Statement:
+                          - Effect: Allow
+                            Action: secretsmanager:ListSecrets
+                            Resource: "*"
+                          - Effect: Allow
+                            Action: secretsmanager:GetSecretValue
+                            Resource: !Ref RDSInstanceSecret
+                - PolicyName: ParameterStoreAccess
+                  PolicyDocument:
+                      Statement:
+                          - Effect: Allow
+                            Action:
+                                - ssm:GetParameter
+                                - ssm:GetParameters
+                                - ssm:GetParametersByPath
+                            Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/rxgt/atlas/services/*'
+                - PolicyName: SecureParameterStoreAccess
+                  PolicyDocument:
+                      Statement:
+                          - Effect: Allow
+                            Action:
+                                - kms:Decrypt
+                            Resource: !FindInMap
+                                - Accounts
+                                - !Ref AWS::AccountId
+                                - SSMKeyId
+    ConnectionBoxEc2InstanceProfile:
+        Type: AWS::IAM::InstanceProfile
+        Properties:
+            Path: /
+            Roles:
+                - !Ref "ConnectionBoxEc2InstanceProfileRole"
+
+    #endregion
+
+    #region Shared Database Resources
+
+    ConnectionBoxPostgresDbAccess:
+        Type: AWS::EC2::SecurityGroup
+        Properties:
+            GroupDescription: Access ConnectionBoxPostgresDb
+            VpcId: !FindInMap
+                - Accounts
+                - !Ref "AWS::AccountId"
+                - VpcId
+
+    ConnectionBoxPostgresDbSecurityGroup:
+        Type: AWS::EC2::SecurityGroup
+        Properties:
+            GroupDescription: Only allow access with ConnectionBoxPostgresDbAccess
+            SecurityGroupIngress:
+                - IpProtocol: tcp
+                  FromPort: 5432
+                  ToPort: 5432
+                  SourceSecurityGroupId: !Ref "ConnectionBoxPostgresDbAccess"
+            VpcId: !FindInMap
+                - Accounts
+                - !Ref "AWS::AccountId"
+                - VpcId
+
+    ConnectionBoxPostgresJumpBoxIngress:
+        Condition: IsRxPlatformRefresh
+        Type: AWS::EC2::SecurityGroupIngress
+        Properties:
+            Description: Allow from Jump Box
+            GroupId: !Ref "ConnectionBoxPostgresDbSecurityGroup"
+            IpProtocol: tcp
+            FromPort: 5432
+            ToPort: 5432
+            SourceSecurityGroupId: !FindInMap
+                - Accounts
+                - !Ref "AWS::AccountId"
+                - JumpBoxSecurityGroup
+
+    ConnectionBoxPostgresDbSubnetGroup:
+        Condition: DeployDbSubnetGroup
+        Type: AWS::RDS::DBSubnetGroup
+        Properties:
+            DBSubnetGroupDescription: Private subnets
+            SubnetIds: !FindInMap
+                - Accounts
+                - !Ref "AWS::AccountId"
+                - DbPrivateSubnetIds
+
+    #endregion
+
+    #region Aurora Cluster
+
+    RDSInstanceSecret:
+        Type: AWS::SecretsManager::Secret
+        Properties:
+            Name: !Sub
+                - "/rxgt/atlas/database/${appName}/${env}"
+                - appName: !FindInMap
+                      - General
+                      - Constants
+                      - ApplicationName
+                  env: !Ref BillingEnvironmentName
+            GenerateSecretString:
+                SecretStringTemplate: '{"username": "dbmasteruser"}'
+                GenerateStringKey: "password"
+                PasswordLength: 20
+                ExcludePunctuation: True
+
+    RDSSecretAttachment:
+        Type: AWS::SecretsManager::SecretTargetAttachment
+        Properties:
+            SecretId: !Ref RDSInstanceSecret
+            TargetType: AWS::RDS::DBCluster
+            TargetId: !Ref AuroraCluster
+
+    RDSSecretRotation:
+        DependsOn: PrimaryDBInstance
+        Type: AWS::SecretsManager::RotationSchedule
+        Properties:
+            RotationRules:
+                AutomaticallyAfterDays: 30
+            SecretId: !Ref RDSInstanceSecret
+            RotationLambdaARN: !FindInMap
+                - Accounts
+                - !Ref "AWS::AccountId"
+                - RDSecretRotationLambda
+
+    AuroraInstanceParameterGroup:
+        Type: AWS::RDS::DBParameterGroup
+        Properties:
+            Description: Params to control logging
+            Family: aurora-postgresql12
+            Parameters:
+                rds.log_retention_period: !Ref AuroraLogRetention
+                log_statement: !Ref QueryLogging
+                log_min_duration_statement: !Ref QueryLogMinDuration
+                log_min_error_statement: !Ref QueryLogMinErrorStatement
+
+    AuroraSubnetGroup:
+        Condition: DeployAuroraSubnetGroup
+        Type: AWS::RDS::DBSubnetGroup
+        Properties:
+            DBSubnetGroupDescription: ConnectionBox Aurora
+            SubnetIds: !FindInMap
+                - Accounts
+                - !Ref "AWS::AccountId"
+                - AuroraPrivateSubnetIds
+
+    AuroraCluster:
+        Type: AWS::RDS::DBCluster
+        Properties:
+            DBClusterIdentifier: !Sub
+                - "${appName}-aurora-${env}"
+                - appName: !FindInMap
+                      - General
+                      - Constants
+                      - ApplicationName
+                  env: !Ref BillingEnvironmentName
+            DatabaseName: Connections
+            Engine: aurora-postgresql
+            EngineMode: provisioned
+            EngineVersion: "12.12"
+            Port: 5432
+            StorageEncrypted: true
+            BackupRetentionPeriod: !FindInMap
+                - Accounts
+                - !Ref "AWS::AccountId"
+                - DbBackupRetentionPeriod
+            DBSubnetGroupName: !If
+                - DeployAuroraSubnetGroup
+                - !Ref AuroraSubnetGroup
+                - !Ref ConnectionBoxPostgresDbSubnetGroup
+            VpcSecurityGroupIds:
+                - !Ref ConnectionBoxPostgresDbSecurityGroup
+                - !FindInMap
+                    - Accounts
+                    - !Ref "AWS::AccountId"
+                    - DBInstanceManagedSecurityGroup
+                - !FindInMap
+                    - Accounts
+                    - !Ref "AWS::AccountId"
+                    - RDSSecretRotationSecurityGroup
+            MasterUsername: !Join
+                - ""
+                - - "{{resolve:secretsmanager:"
+                  - !Ref RDSInstanceSecret
+                  - ":SecretString:username}}"
+            MasterUserPassword: !Join
+                - ""
+                - - "{{resolve:secretsmanager:"
+                  - !Ref RDSInstanceSecret
+                  - ":SecretString:password}}"
+            SnapshotIdentifier: !If
+                - IsDrx
+                - !Ref 'SnapshotIdentifier'
+                - !Ref AWS::NoValue
+            Tags:
+                - Key: backup
+                  Value: T1_4hr_3month
+
+    PrimaryDBInstance:
+        Type: AWS::RDS::DBInstance
+        Properties:
+            AvailabilityZone: !Select
+                - 0
+                - !GetAZs ""
+            DBClusterIdentifier: !Ref AuroraCluster
+            DBInstanceClass: !FindInMap
+                - Accounts
+                - !Ref "AWS::AccountId"
+                - DbInstanceClass
+            Engine: aurora-postgresql
+            DBParameterGroupName: !Ref AuroraInstanceParameterGroup
+            MonitoringInterval: !If
+                - EnableRDSEnhancedMonitoring
+                - !FindInMap
+                    - Accounts
+                    - !Ref "AWS::AccountId"
+                    - DbEnhancedMonitoringInverval
+                - !Ref "AWS::NoValue"
+            MonitoringRoleArn: !If
+                - EnableRDSEnhancedMonitoring
+                - !Sub "arn:aws:iam::${AWS::AccountId}:role/rxgt/ps/rxgt-ps-cross-account-iam-rdsenhancedmonitoring-role"
+                - !Ref "AWS::NoValue"
+
+    ReplicaDBInstance:
+        Condition: DeployAuroraReplica
+        Type: AWS::RDS::DBInstance
+        Properties:
+            AvailabilityZone: !Select
+                - 1
+                - !GetAZs ""
+            DBClusterIdentifier: !Ref AuroraCluster
+            DBInstanceClass: !FindInMap
+                - Accounts
+                - !Ref "AWS::AccountId"
+                - DbInstanceClass
+            Engine: aurora-postgresql
+            DBParameterGroupName: !Ref AuroraInstanceParameterGroup
+            MonitoringInterval: !If
+                - EnableRDSEnhancedMonitoring
+                - !FindInMap
+                    - Accounts
+                    - !Ref "AWS::AccountId"
+                    - DbEnhancedMonitoringInverval
+                - !Ref "AWS::NoValue"
+            MonitoringRoleArn: !If
+                - EnableRDSEnhancedMonitoring
+                - !Sub "arn:aws:iam::${AWS::AccountId}:role/rxgt/ps/rxgt-ps-cross-account-iam-rdsenhancedmonitoring-role"
+                - !Ref "AWS::NoValue"
+
+    #endregion
+
+    ConnectionBoxElasticBeanstalkServiceRole:
+        Metadata:
+            Description:
+                Required by the Elastic Beanstalk service for provision of Enhanced
+                Health reporting
+        Type: AWS::IAM::Role
+        Properties:
+            AssumeRolePolicyDocument:
+                Statement:
+                    - Effect: Allow
+                      Principal:
+                          Service:
+                              - elasticbeanstalk.amazonaws.com
+                      Action: sts:AssumeRole
+            Path: /rxgt/atlas/
+            ManagedPolicyArns:
+                - arn:aws:iam::aws:policy/service-role/AWSElasticBeanstalkEnhancedHealth
+
+Outputs:
+    ConnectionBoxUploadedFilesBucketName:
+        Value: !Ref "ConnectionBoxUploadedFilesS3Bucket"
+
+    ConnectionBoxPackagesBucketName:
+        Condition: IncludePackagesBucket
+        Value: !Ref "ConnectionBoxPackagesS3Bucket"
+
+    ConnectionBoxInstanceProfile:
+        Value: !Ref "ConnectionBoxEc2InstanceProfile"
+
+    ConnectionBoxPostgresDbAccessSecurityGroup:
+        Value: !Ref "ConnectionBoxPostgresDbAccess"
+
+    ConnectionBoxElasticBeanstalkServiceRole:
+        Value: !GetAtt "ConnectionBoxElasticBeanstalkServiceRole.Arn"
