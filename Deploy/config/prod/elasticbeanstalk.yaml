@@ -1,0 +1,171 @@
+# For information on replacement parameters in this file like ${precomputed_AMI_IMAGE_ID} please read
+# https://bitbucket.org/coreshowservices/reedexpo.cake.aws.elasticbeanstalk/src/master/doc/ReplacementParameters.md
+
+files:
+  /tmp/0-env-name.txt:
+    content: { "Ref" : "AWSEBEnvironmentName" }
+
+  /tmp/1-set-splunk-config.py:
+    mode: '000755'
+    content: |
+      #!/usr/bin/env python
+
+      import re
+      import os
+      import tempfile
+      import urllib
+
+      SPLUNK_CONFIG = "/opt/splunkforwarder/etc/system/local"
+      EC2_METADATA = "http://169.254.169.254/latest/meta-data/local-ipv4"
+
+      def read_ini_file(file_path):
+          ini = {}
+
+          with open(file_path, "r") as f:
+              for line in f:
+                  m = re.search("^\[(.+)\]", line)  # Section
+                  if m:
+                      section = m.group(1)
+                      ini[section] = {}
+                      continue
+                  m = re.search("(.+?)\s*=\s*(.*)", line) # Key
+                  if m:
+                      ini[section][m.group(1)] = m.group(2)
+          return ini
+
+      def write_ini_file(ini, file_path):
+          with open(file_path, "w") as f:
+              for section in ini:
+                  f.write("[{}]\n".format(section))
+                  for entry in ini[section]:
+                      f.write("{} = {}\n".format(entry, ini[section][entry]))
+                  f.write("\n")
+
+      def get_environment_name():
+          with open(os.path.join(tempfile.gettempdir(), "0-env-name.txt")) as f:
+              env_name = f.readline().strip()
+          url = urllib.urlopen(EC2_METADATA)
+          private_ip = url.read().decode().strip().replace(".", "_")
+          return "{}-{}".format(env_name, private_ip)
+
+
+      splunk_env_name = get_environment_name()
+      inputs_conf = os.path.join(SPLUNK_CONFIG, "inputs.conf")
+      server_conf = os.path.join(SPLUNK_CONFIG, "server.conf")
+      deployment_client_conf = os.path.join(SPLUNK_CONFIG, "deploymentclient.conf")
+      inputs = read_ini_file(inputs_conf)
+      server = read_ini_file(server_conf)
+      inputs["default"]["host"] = splunk_env_name
+      server["general"]["servername"] = splunk_env_name
+      deployment_client = {
+          "target-broker:deploymentServer": {
+              "targetUri": "splunk-ds:8089"
+          },
+          "deployment-client": {
+              "clientName": splunk_env_name
+          }
+      }
+
+      write_ini_file(inputs, inputs_conf)
+      write_ini_file(server, server_conf)
+      write_ini_file(deployment_client, deployment_client_conf)
+
+commands:
+  config-splunk-service:
+    command: /opt/splunkforwarder/bin/splunk enable boot-start
+  set-splunk-config:
+    command: /tmp/1-set-splunk-config.py
+
+services:
+  sysvinit:
+    splunk:
+      commands:
+        - config-splunk-service
+        - set-splunk-config
+      ensureRunning: true
+      enabled: true
+
+Resources:
+  AWSEBAutoScalingGroup:
+    Type: "AWS::AutoScaling::AutoScalingGroup"
+    Properties:
+      HealthCheckType: ELB
+      HealthCheckGracePeriod: 1200
+
+option_settings:
+  aws:autoscaling:launchconfiguration:
+    # BEWARE: leader_only ebextensions container_commands (e.g. migrations) DO NOT run on a deployment that also updates the AMI so the latest app version should be deployed to an environment before updating the AMI
+    # The placeholders are populated by the deployment as follows
+    ImageId: ${precomputed_AMI_IMAGE_ID}
+    SecurityGroups: ${precomputed_SECURITY_GROUPS}
+    IamInstanceProfile: ${cloudformationOutput_AWS_IAM_INSTANCE_PROFILE}
+
+  aws:ec2:instances:
+    InstanceTypes: ${bamboo_EC2_INSTANCE_TYPE ?? t3.small}
+
+  aws:ec2:vpc:
+    VPCId: vpc-893943ed
+    Subnets: subnet-61732005,subnet-0aa8e37c
+    ELBSubnets: subnet-63732007,subnet-0da8e37b
+
+  aws:elasticbeanstalk:application:
+    Application Healthcheck URL: /ping
+
+  aws:elb:loadbalancer:
+    CrossZone: true
+    # Use custom load balancer security groups for whitelisting
+    # This security group is defined by the shared stack rxgt-atlas-shared-infrastructure and should not be changed wihout consulting TEx team.
+    SecurityGroups: sg-0aa17c91add26aabb,sg-0e399c50a9c868c96
+    ManagedSecurityGroup: sg-0aa17c91add26aabb
+
+  aws:elb:policies:
+    ConnectionDrainingEnabled: true
+    ConnectionDrainingTimeout: 20
+    ConnectionSettingIdleTimeout: 180
+
+  aws:elasticbeanstalk:cloudwatch:logs:
+    StreamLogs: false
+    DeleteOnTerminate: false
+    RetentionInDays: 3
+
+  # Terminate HTTPS at the load balancer
+  aws:elb:listener:443:
+    ListenerProtocol: HTTPS
+    InstancePort: 80
+    SSLCertificateId: arn:aws:acm:eu-west-1:612155760304:certificate/bac31d9b-25bb-4121-8d38-4987a073753f
+
+  # Disable HTTP
+  aws:elb:listener:80:
+    ListenerEnabled: false
+
+  # Enhanced healthcheck
+  aws:elasticbeanstalk:environment:
+    ServiceRole: ${cloudformationOutput_ELASTIC_BEANSTALK_SERVICE_ROLE}
+
+  aws:elasticbeanstalk:healthreporting:system:
+    SystemType: enhanced
+
+  # Use immutable updates
+  aws:autoscaling:asg:
+    MinSize: ${bamboo_AUTOSCALING_MINSIZE ?? 2}
+    MaxSize: ${bamboo_AUTOSCALING_MAXSIZE ?? 4}
+  aws:autoscaling:updatepolicy:rollingupdate:
+    RollingUpdateEnabled: true
+    MaxBatchSize: 2
+    MinInstancesInService: 2
+    RollingUpdateType: Immutable
+    Timeout: PT20M
+  aws:elasticbeanstalk:command:
+    DeploymentPolicy: Immutable
+    BatchSizeType: Percentage
+    BatchSize: 50
+
+  # Disable Autoscaling until load testing detremines config
+  aws:autoscaling:trigger:
+    MeasureName: CPUUtilization
+    Unit: Percent
+    Statistic: Average
+    Period: ${bamboo_AUTOSCALING_PERIOD ?? 5}
+    EvaluationPeriods: ${bamboo_AUTOSCALING_EVALUATION_PERIODS ?? 2}
+    UpperThreshold: ${bamboo_AUTOSCALING_UPPER_THRESHOLD ?? 70}
+    LowerThreshold: ${bamboo_AUTOSCALING_LOWER_THRESHOLD ?? 30}
