@@ -1,0 +1,896 @@
+{
+	"info": {
+		"_postman_id": "73383d46-cfeb-47b2-9886-70cd05051056",
+		"name": "ConnectionBox API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "v1",
+			"item": [
+				{
+					"name": "Get Access request",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-clientid",
+								"value": "{{clientId}}",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							},
+							{
+								"key": "",
+								"value": "",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{server}}/api/v1/access-requests?showId=90b223d2-9b77-4054-b3d4-1004ae5358ab&exhibitorEmail=nithyas@thoughtworks.com",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"access-requests"
+							],
+							"query": [
+								{
+									"key": "showId",
+									"value": "90b223d2-9b77-4054-b3d4-1004ae5358ab"
+								},
+								{
+									"key": "exhibitorEmail",
+									"value": "nithyas@thoughtworks.com"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Post Auth sessions",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							},
+							{
+								"key": "x-clientid",
+								"value": "{{clientId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"accessCode\": \"string\",\n  \"companyId\": \"string\",\n  \"eula\": true\n}"
+						},
+						"url": {
+							"raw": "{{server}}/api/v1/auth-sessions",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth-sessions"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Connections",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							},
+							{
+								"key": "x-clientid",
+								"value": "{{clientId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{server}}/api/v1/connections?exhibitorId=d4d89e77-3fb1-48ac-8e3b-26b8f6a99699",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"connections"
+							],
+							"query": [
+								{
+									"key": "exhibitorId",
+									"value": "d4d89e77-3fb1-48ac-8e3b-26b8f6a99699"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "POST Connections",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "x-clientid",
+								"value": "{{clientId}}",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"visitor\": {\n    \"badgeId\": \"2\",\n    \"firstName\": \"string\",\n    \"lastName\": \"string\",\n    \"company\": \"string\",\n    \"position\": \"string\",\n    \"email\": \"string\",\n    \"phone\": \"string\",\n    \"country\": \"string\"\n  },\n  \"connectionMadeBy\": \"string\",\n  \"createdOn\": \"2019-02-06T06:30:32.761Z\",\n  \"notes\": \"string\",\n  \"rating\": 0\n}"
+						},
+						"url": {
+							"raw": "{{server}}/api/v1/connections",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"connections"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Patch Connections",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							},
+							{
+								"key": "x-clientid",
+								"value": "{{clientId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[\n  {\n    \"value\": \"notest string\",\n    \"path\": \"/notes\",\n    \"op\": \"replace\",\n    \"from\": \"string\"\n  }\n]"
+						},
+						"url": {
+							"raw": "{{server}}/api/v1/connections/:connectionid",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"connections",
+								":connectionid"
+							],
+							"query": [
+								{
+									"key": "",
+									"value": "",
+									"disabled": true
+								}
+							],
+							"variable": [
+								{
+									"key": "connectionid",
+									"value": "1234"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Download Report",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-clientid",
+								"value": "{{clientId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{server}}/api/v1/connections/download?reportCode=NCXU1R5KKKF6GDBNGTN6",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"connections",
+								"download"
+							],
+							"query": [
+								{
+									"key": "reportCode",
+									"value": "NCXU1R5KKKF6GDBNGTN6"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Exhibitors for Show",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "{{token}}"
+							},
+							{
+								"key": "x-clientid",
+								"type": "text",
+								"value": "{{clientId}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{server}}/api/v1/exhibitors?showId={{showId}}",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"exhibitors"
+							],
+							"query": [
+								{
+									"key": "showId",
+									"value": "{{showId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "POST exhibitor for a show",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"key": "x-clientid",
+								"type": "text",
+								"value": "{{clientId}}"
+							},
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"string\",\n  \"showId\": \"string\",\n  \"platformExhibitorId\": \"string\",\n  \"primaryContactEmail\": \"string\",\n  \"companyEmail\": \"string\",\n  \"companyPhone\": \"string\",\n  \"companyUrl\": \"string\",\n  \"headline\": \"string\",\n  \"description\": \"string\"\n}"
+						},
+						"url": {
+							"raw": "{{server}}/api/v1/exhibitors",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"exhibitors"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Upload Exhibitors",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/form-data"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							},
+							{
+								"key": "x-clientid",
+								"value": "{{clientId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": ""
+								}
+							]
+						},
+						"url": {
+							"raw": "{{server}}/api/v1/exhibitors/upload",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"exhibitors",
+								"upload"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Exhibitors by ExhibitorId",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "{{token}}"
+							},
+							{
+								"key": "x-clientid",
+								"type": "text",
+								"value": "{{clientId}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{server}}/api/v1/exhibitors/:id",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"exhibitors",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "d300ede4-9292-46c2-a448-fef9ef2e01a7"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Patch Exhibitor by ExhibitorId for accessCode and reportCode",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							},
+							{
+								"key": "x-clientid",
+								"value": "{{clientId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[\n  {\n    \"value\": \"K8NQ34\",\n    \"path\": \"/accessControl/accessCode\",\n    \"op\": \"replace\",\n    \"from\": \"string\"\n  }\n]"
+						},
+						"url": {
+							"raw": "{{server}}/api/v1/exhibitors/:id",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"exhibitors",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "d300ede4-9292-46c2-a448-fef9ef2e01a7"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Shows",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							},
+							{
+								"key": "x-clientid",
+								"value": "{{clientId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{server}}/api/v1/shows",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"shows"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Show",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							},
+							{
+								"key": "x-clientid",
+								"value": "{{clientId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Nithyas Prepros\",\n  \"startDate\": \"2019-02-06T08:46:57.724Z\",\n  \"endDate\": \"2019-02-08T08:46:57.724Z\",\n  \"platform\": \"Nova\",\n  \"platformShowId\": \"Nova123\",\n  \"locale\": \"en-GB\",\n  \"timeZone\": \"Pacific Standard Time\",\n  \"supportEmail\": \"support@emperiapreprod.com\",\n  \"qrKey\": \"VGdmUWVzdHZBekt3c3pUeQ==\"\n}"
+						},
+						"url": {
+							"raw": "{{server}}/api/v1/shows",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"shows"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get show by showId",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							},
+							{
+								"key": "x-clientid",
+								"value": "{{clientId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{server}}/api/v1/shows/:id",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"shows",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "90b223d2-9b77-4054-b3d4-1004ae5358ab"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Patch Show for QR Key and Active status",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							},
+							{
+								"key": "x-clientid",
+								"value": "{{clientId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[\n  {\n    \"value\": \"VGdmUWVzdHZBekt3c3pUeQ==\",\n    \"path\": \"/show/qRKey\",\n    \"op\": \"replace\",\n    \"from\": \"string\"\n  }\n]"
+						},
+						"url": {
+							"raw": "{{server}}/api/v1/shows/:id",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"shows",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "90b223d2-9b77-4054-b3d4-1004ae5358ab"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Send Exhibitor Email - EOD & EOS",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							},
+							{
+								"key": "x-clientid",
+								"value": "{{clientId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"emailType\": \"EOD\"\n}"
+						},
+						"url": {
+							"raw": "{{server}}/api/v1/shows/:id/exhibitor-emails",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"shows",
+								":id",
+								"exhibitor-emails"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "90b223d2-9b77-4054-b3d4-1004ae5358ab"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Send Visitor Email - EOS",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							},
+							{
+								"key": "x-clientid",
+								"value": "{{clientId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"emailType\": \"EOS\"\n}"
+						},
+						"url": {
+							"raw": "{{server}}/api/v1/shows/:id/visitor-emails",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"shows",
+								":id",
+								"visitor-emails"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "90b223d2-9b77-4054-b3d4-1004ae5358ab"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Visitors for show",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							},
+							{
+								"key": "x-clientid",
+								"value": "{{clientId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{server}}/api/v1/shows/:id/visitors",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"shows",
+								":id",
+								"visitors"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "90b223d2-9b77-4054-b3d4-1004ae5358ab"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create visitors for show",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							},
+							{
+								"key": "x-clientid",
+								"value": "{{clientId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"badgeId\": \"1\",\n  \"firstName\": \"Nithya Visitor\",\n  \"lastName\": \"string\",\n  \"company\": \"string\",\n  \"position\": \"string\",\n  \"email\": \"string\",\n  \"phone\": \"string\",\n  \"country\": \"string\"\n}"
+						},
+						"url": {
+							"raw": "{{server}}/api/v1/shows/:id/visitors",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"shows",
+								":id",
+								"visitors"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "90b223d2-9b77-4054-b3d4-1004ae5358ab"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "Folder for v1"
+		},
+		{
+			"name": "health",
+			"item": [
+				{
+					"name": "Get Health check of connection box and build number",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-clientid",
+								"value": "RpHrUDcORuYRYU5227WSbzjj8N1ErKwP",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{swaggerEndpoint}}/health",
+							"host": [
+								"{{swaggerEndpoint}}"
+							],
+							"path": [
+								"health"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "Folder for health"
+		},
+		{
+			"name": "ping",
+			"item": [
+				{
+					"name": "Ping server",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{swaggerEndpoint}}/ping",
+							"host": [
+								"{{swaggerEndpoint}}"
+							],
+							"path": [
+								"ping"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "Folder for ping"
+		}
+	]
+}
