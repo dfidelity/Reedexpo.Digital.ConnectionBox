@@ -1,0 +1,24 @@
+{
+  "name": "colleqt_qrcode_generation",
+  "version": "1.0.0",
+  "description": "Lambda code to generate Colleqt QR Codes!",
+  "main": "createColleqtQRCodes.js",
+  "scripts": {
+    "start": "node src/executeHandler.js",
+    "prettier-format": "prettier --config .prettierrc 'src/**/*.*' --write"
+  },
+  "type": "module",
+  "author": "Emperia",
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.395.0",
+    "axios": "^1.5.0",
+    "canvas": "^2.11.2",
+    "jsdom": "^22.1.0",
+    "playwright-aws-lambda": "^0.10.0",
+    "playwright-core": "^1.37.1",
+    "qr-code-styling-node": "^1.5.0"
+  },
+  "devDependencies": {
+    "prettier": "^3.0.2"
+  }
+}
