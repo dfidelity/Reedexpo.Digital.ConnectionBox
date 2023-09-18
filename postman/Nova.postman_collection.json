@@ -1,0 +1,239 @@
+{
+	"info": {
+		"_postman_id": "6b1f4315-99ea-4fc5-93db-9426b6f8fb61",
+		"name": "Nova",
+		"description": "Nova\n\nThe documentation is located at the link below. You need to login with the username provided in the Postman environment and the password shared by a member of the team. This will give you a x-apiKey (in \"Data\").\n\nhttps://site06.qaw11.rxweb-dev.com/api/v2_3/introspect\n\nIn a nutshell, make sure the x-apiKey header is set with a valid API key such as the one provided in the Postman environment and you'll be able to call any Nova API. Note that these tokens expire and need to be refreshed.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Create apikey from login details",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46YWRtaW4=",
+						"disabled": true
+					},
+					{
+						"key": "Accept",
+						"value": "application/json"
+					},
+					{
+						"key": "Content-Type",
+						"value": "text/plain"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "\"admin\""
+				},
+				"url": {
+					"raw": "{{server}}/api/v2_1/security/login/{{login}}/apikey",
+					"host": [
+						"{{server}}"
+					],
+					"path": [
+						"api",
+						"v2_1",
+						"security",
+						"login",
+						"{{login}}",
+						"apikey"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get event editions",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "x-apiKey",
+						"value": "{{apikey}}"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json"
+					}
+				],
+				"body": {},
+				"url": {
+					"raw": "{{server}}/api/v2_3/eventEditions?startDate=2018-01-01",
+					"host": [
+						"{{server}}"
+					],
+					"path": [
+						"api",
+						"v2_3",
+						"eventEditions"
+					],
+					"query": [
+						{
+							"key": "startDate",
+							"value": "2018-01-01"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get event edition",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json"
+					},
+					{
+						"key": "x-apiKey",
+						"value": "{{apikey}}"
+					}
+				],
+				"body": {},
+				"url": {
+					"raw": "{{server}}/api/v2_3/eventEditions/{{eventEditionId}}",
+					"host": [
+						"{{server}}"
+					],
+					"path": [
+						"api",
+						"v2_3",
+						"eventEditions",
+						"{{eventEditionId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get visitors",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "x-apiKey",
+						"value": "{{apikey}}"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json"
+					}
+				],
+				"body": {},
+				"url": {
+					"raw": "{{server}}/api/v2_3/eventEditions/{{eventEditionId}}/participants/individuals",
+					"host": [
+						"{{server}}"
+					],
+					"path": [
+						"api",
+						"v2_3",
+						"eventEditions",
+						"{{eventEditionId}}",
+						"participants",
+						"individuals"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get exhibitors (dev API)",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "x-apiKey",
+						"value": "{{apikey}}"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json"
+					}
+				],
+				"body": {},
+				"url": {
+					"raw": "http://site06.qaw11.rxweb-dev.com/api/v2_3/eventEditions/{{eventEditionId}}/exhibitorsPlus",
+					"protocol": "http",
+					"host": [
+						"site06",
+						"qaw11",
+						"rxweb-dev",
+						"com"
+					],
+					"path": [
+						"api",
+						"v2_3",
+						"eventEditions",
+						"{{eventEditionId}}",
+						"exhibitorsPlus"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get exhibitors",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "x-apiKey",
+						"value": "{{apikey}}"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json"
+					}
+				],
+				"body": {},
+				"url": {
+					"raw": "{{server}}/api/v2_3/eventEditions/{{eventEditionId}}/participants/companies",
+					"host": [
+						"{{server}}"
+					],
+					"path": [
+						"api",
+						"v2_3",
+						"eventEditions",
+						"{{eventEditionId}}",
+						"participants",
+						"companies"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "05bf9afa-d6b8-44c7-b664-ecb7a89b2975",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "87dc84ec-a68e-4a0e-a2bb-f511aff6a723",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}
