@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<nlog xmlns="http://www.nlog-project.org/schemas/NLog.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" autoReload="true" internalLogLevel="Warn" internalLogFile="c:\temp\ConnectionBox.Internal.nlog.log">
+  <extensions>
+    <add assembly="NLog.Web.AspNetCore"/>
+    <add assembly="ReedExpo.Digital.Logging" />
+  </extensions>
+
+  <variable name="nlogAppName" value="ConnectionBox"/>
+  <variable name="nlogPath" value="[logPath]\${nlogAppName}"/>
+  <variable name="nlogFileLayout" value="${longdate}|${event-properties:item=EventId.Id}|${logger}|${uppercase:${level}}|${message} ${exception}"/>
+  <variable name="nlogEnvironment" value="[environment]"/>
+
+  <targets>
+    <target type="File" name="fileTarget" fileName="${nlogPath}.${shortdate}.log" layout="${nlogFileLayout}" />
+  </targets>
+  <rules>
+    <logger name="System.Net.Http.HttpClient.*" maxlevel="Info" final="true" />
+    <logger name="Microsoft.*" maxlevel="Info" final="true" />
+    <logger name="IdentityServer4.*" maxlevel="Info" final="true"/>
+    <logger name="App.Metrics.*" maxlevel="Info" final="true" />
+    <logger name="*" minlevel="[fileMinLevel]" writeTo="fileTarget" enabled="[fileEnabled]" />
+  </rules>
+</nlog>
